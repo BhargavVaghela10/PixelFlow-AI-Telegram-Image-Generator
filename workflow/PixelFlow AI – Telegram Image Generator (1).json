@@ -1,0 +1,1354 @@
+{
+  "name": "PixelFlow AI – Telegram Image Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        432
+      ],
+      "id": "cc49d3e3-b8c0-4703-88f3-b32561aa75a1",
+      "name": "Telegram Trigger",
+      "webhookId": "520152c9-2c69-44ad-9f29-09bb58c4e37f",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://image.pollinations.ai/prompt/' +\nencodeURIComponent($json.enhancedPrompt) +\n'?width=1024&height=1024&nologo=true&seed=' +\nMath.floor(Math.random() * 999999)\n}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        496,
+        1104
+      ],
+      "id": "fa1985fc-924e-4bce-b305-9b8a2a0b3652",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✨ Generate More",
+                    "additionalFields": {
+                      "callback_data": "generate_more"
+                    }
+                  },
+                  {
+                    "text": "ℹ️ Help",
+                    "additionalFields": {
+                      "callback_data": "help"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔄 Re-Generate",
+                    "additionalFields": {
+                      "callback_data": "regenerate"
+                    }
+                  },
+                  {
+                    "text": "🎨 Change Style",
+                    "additionalFields": {
+                      "callback_data": "change_style"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "✨ Your AI-generated image is ready!"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        1104
+      ],
+      "id": "6a62ed87-5773-45a8-b918-c0b53b7e5378",
+      "name": "Send a photo message",
+      "webhookId": "5c24a97f-0cee-47bc-82cc-2020f0b37e8d",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.message.text}}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "903841b8-b982-49d3-ac94-3df8212c3fc7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f2fb97c0-ade1-4d4f-b69b-9d2b2e01e0c4",
+                    "leftValue": "={{$json.message.text}}",
+                    "rightValue": "/help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Help"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f16ab5b5-5bff-4c77-85b8-0de3cf190fd5",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Help Button"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b700e918-0317-4061-9c33-e4b5c1655140",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "generate_more",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Generate More"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d1775aa4-5061-4c16-8f58-5c53196f6e1f",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "change_style",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Change Style"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "90f9b403-eb27-47d4-8e35-d5bd4cc3910c",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "style_realistic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Realistic"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "34fd7c59-ac6e-412f-8212-d1b512e7fb64",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "style_ghibli",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ghibli"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7464bdbb-75ec-45ed-bc95-6b7dd1b96eee",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "style_anime",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Anime"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5dcad796-3c1b-49e2-9b4a-fa58e53a01ca",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "style_pixar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Pixar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6acab48b-7bc9-4c8c-8b42-1971e0712b53",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "style_sketch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sketch"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5a6a97e2-aa85-4aef-8be5-cc801acae8ea",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "style_watercolor",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Watercolor"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a52a6e67-f425-433d-afe8-4bbb148fe1ca",
+                    "leftValue": "={{$json.callback_query.data}}",
+                    "rightValue": "regenerate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Re-Generate"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        432
+      ],
+      "id": "f408c18f-dcf0-4218-bfa8-829f03783c0c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "5597301843",
+        "text": "👋 Welcome to PixelFlow AI!  Send me any image idea and I’ll generate it for you.  Example: “A cinematic poster of a futuristic robot chef cooking in a neon kitchen”  Commands: /help — See how to use the bot",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        -112
+      ],
+      "id": "bcabaf65-9905-4c58-a73f-f4dde7608c58",
+      "name": "Welcome Message",
+      "webhookId": "063ae548-8b6b-455e-bb7c-29cb37021d69",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message?.chat?.id || $json.callback_query?.message?.chat?.id }}",
+        "text": "🤖 PixelFlow AI Help  Send any image idea and I’ll generate it for you.  💡 Tips • Be specific about the subject • Add a style: realistic, anime, 3D, cinematic, poster, etc. • Mention lighting, background, colors, or mood  🖼 Example “A cozy coffee shop on a rainy evening, warm lights, cinematic style”  Just type your idea and send it ✨",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        0
+      ],
+      "id": "c879e8df-5cc6-44c2-aada-9f622533b39a",
+      "name": "Help Message",
+      "webhookId": "eb712f12-4f71-4209-adde-837378aff874",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Telegram Trigger\"].json.message.chat.id}}",
+        "text": "🎨 Generating your image...  Please wait a few seconds ✨",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        1104
+      ],
+      "id": "5a308a56-0699-4ca2-ab45-f09ea8469788",
+      "name": "Generating Message",
+      "webhookId": "1e2149d1-51b3-471a-961e-eb308666892f",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.callback_query.message.chat.id }}",
+        "text": "Great! Send me your next image idea and I’ll create it ✨",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        176
+      ],
+      "id": "4a5038cf-9c6d-44e3-b78d-fbc7d16f57b7",
+      "name": "Generate Another Message",
+      "webhookId": "599ca8f1-472d-4442-8efa-649dc4d2798e",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg",
+          "mode": "list",
+          "cachedResultName": "Untitled PixelFlow AI - User Prompts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatId": "={{$json.result.chat.id}}",
+            "lastPrompt": "={{$node[\"Telegram Trigger\"].json.message.text}}",
+            "style": "realistic"
+          },
+          "matchingColumns": [
+            "chatId"
+          ],
+          "schema": [
+            {
+              "id": "chatId",
+              "displayName": "chatId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastPrompt",
+              "displayName": "lastPrompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "style",
+              "displayName": "style",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        160,
+        1104
+      ],
+      "id": "71ecf0a4-02b6-46d2-b00d-b2670441e13b",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2QjqLo5hNyeEsJAo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg",
+          "mode": "list",
+          "cachedResultName": "PixelFlow AI - User Prompts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "chatId",
+              "lookupValue": "={{$json.callback_query.message.chat.id}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        864
+      ],
+      "id": "01fd85fb-03ce-4ca1-8b86-e6c37332bfa7",
+      "name": "Get Last Prompt",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2QjqLo5hNyeEsJAo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Telegram Trigger\"].json.callback_query.message.chat.id}}",
+        "text": "🎨 Re-Generating your image...  Please wait a few seconds ✨",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        864
+      ],
+      "id": "5d94c2b9-0b54-4a7d-94a5-100b5abd5d96",
+      "name": "Re-Generating Message",
+      "webhookId": "1e2149d1-51b3-471a-961e-eb308666892f",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://image.pollinations.ai/prompt/' + encodeURIComponent($node[\"Get Last Prompt\"].json.lastPrompt + ', ultra detailed, high quality, sharp focus, cinematic lighting, professional composition, 4k') + '?width=1024&height=1024&nologo=true&seed=' + Math.floor(Math.random() * 999999) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        864
+      ],
+      "id": "e3bc5d71-3206-4de5-ae08-4925e1ef6c27",
+      "name": "HTTP Request Re-Generate"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{$node[\"Telegram Trigger\"].json.callback_query.message.chat.id}}",
+        "binaryData": true,
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✨ Generate More",
+                    "additionalFields": {
+                      "callback_data": "generate_more"
+                    }
+                  },
+                  {
+                    "text": "ℹ️ Help",
+                    "additionalFields": {
+                      "callback_data": "help"
+                    }
+                  },
+                  {
+                    "text": "🔄 Re-Generate",
+                    "additionalFields": {
+                      "callback_data": "regenerate"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "✨ Your AI-generated image is ready!"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        864
+      ],
+      "id": "77e7bfdc-06a6-4525-852a-54d4c75475ea",
+      "name": "Re-Generated Photo",
+      "webhookId": "5c24a97f-0cee-47bc-82cc-2020f0b37e8d",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "121f8e7f-b740-4b74-afaa-385449148ca3",
+              "name": "enhancedPrompt",
+              "value": "=={{$node[\"Telegram Trigger\"].json.message.text + \", ultra detailed, masterpiece, best quality, sharp focus, cinematic lighting, professional photography, 8k\"}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        1104
+      ],
+      "id": "29337757-f051-4217-b598-6273f9d343a9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.callback_query.message.chat.id}}",
+        "text": "🎨 Choose an image style:",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📸 Realistic",
+                    "additionalFields": {
+                      "callback_data": "style_realistic"
+                    }
+                  },
+                  {
+                    "text": "🌸 Ghibli",
+                    "additionalFields": {
+                      "callback_data": "style_ghibli"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🎌 Anime",
+                    "additionalFields": {
+                      "callback_data": "style_anime"
+                    }
+                  },
+                  {
+                    "text": "🎨 Pixar",
+                    "additionalFields": {
+                      "callback_data": "style_pixar"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✏️ Sketch",
+                    "additionalFields": {
+                      "callback_data": "style_sketch"
+                    }
+                  },
+                  {
+                    "text": "🖼 Watercolor",
+                    "additionalFields": {
+                      "callback_data": "style_watercolor"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        288
+      ],
+      "id": "733b462f-17ef-4ca5-979c-33a6611d0bb2",
+      "name": "Choose Style",
+      "webhookId": "9bf795f3-0587-4e8d-87b5-8281cde53970",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0e6e00f3-1584-47a3-92d5-b8114e43a2da",
+              "name": "style",
+              "value": "={{ $json.callback_query.data.replace('style_', '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        512
+      ],
+      "id": "bff422bd-8981-4013-bddd-d766e28b3b17",
+      "name": "Extract Style"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg",
+          "mode": "list",
+          "cachedResultName": "Untitled PixelFlow AI - User Prompts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatId": "={{ $node[\"Telegram Trigger\"].json.callback_query.message.chat.id }}",
+            "style": "={{ $node[\"Extract Style\"].json.style }}"
+          },
+          "matchingColumns": [
+            "chatId"
+          ],
+          "schema": [
+            {
+              "id": "chatId",
+              "displayName": "chatId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastPrompt",
+              "displayName": "lastPrompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "style",
+              "displayName": "style",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1104,
+        256
+      ],
+      "id": "b82ca0f6-2799-4479-8379-a3602bfbb1f8",
+      "name": "append or update raw for style",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2QjqLo5hNyeEsJAo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg",
+          "mode": "list",
+          "cachedResultName": "PixelFlow AI - User Prompts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QQeYRxEJ5taAD5Wef3roD9Nhk8DFsuWKTwO_UFHGNXg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "chatId",
+              "lookupValue": "={{ $node[\"Telegram Trigger\"].json.callback_query.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1312,
+        256
+      ],
+      "id": "4883af9e-42c7-4c41-93df-049436efcfbd",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2QjqLo5hNyeEsJAo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a3e58145-3096-4a31-b291-7103d235604a",
+              "name": "prompt",
+              "value": "={{ $json.lastPrompt }}",
+              "type": "string"
+            },
+            {
+              "id": "dd8df1f5-5d71-4220-ad2b-63ba84cd287a",
+              "name": "style",
+              "value": "={{ $json.style }}",
+              "type": "string"
+            },
+            {
+              "id": "6fd402d5-6256-4197-99fc-d5cd9cd6128b",
+              "name": "enhancedPrompt",
+              "value": "={{ \n$json.lastPrompt +\n'. Render this image in ' + $json.style +\n' style. Preserve the exact subject, composition, camera angle, lighting and scene. Only change the artistic style. Ultra detailed, masterpiece, best quality.'\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        256
+      ],
+      "id": "f78ff440-c526-48a6-b728-568684987590",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "url": "={{\n'https://image.pollinations.ai/prompt/' +\nencodeURIComponent($json.enhancedPrompt) +\n'?width=1024&height=1024&nologo=true&seed=' + Math.floor(Math.random()*999999)\n}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        256
+      ],
+      "id": "1c3fb704-d2fa-4575-8f35-09727d0678ff",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.callback_query.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "={{ \"✨ Your \" + $node[\"Extract Style\"].json.style + \" style image is ready!\" }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1904,
+        256
+      ],
+      "id": "a55efa59-a218-48d7-8929-9e330cd4f9d2",
+      "name": "Send a photo message1",
+      "webhookId": "7c029fd4-7655-4c85-a33a-72d9bd09d73c",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.callback_query.message.chat.id }}",
+        "text": "={{ \"✨ Generating your \" + $json.style + \" style image... Please wait 🎨\" }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        256
+      ],
+      "id": "f9007380-da85-4467-bcea-45f659f8ab4e",
+      "name": "Generating Style Message",
+      "webhookId": "599ca8f1-472d-4442-8efa-649dc4d2798e",
+      "credentials": {
+        "telegramApi": {
+          "id": "847EsP7CAtVX96rH",
+          "name": "PixelFlow Bot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Welcome Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Help Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Help Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Another Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Choose Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Style",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Last Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generating Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generating Message": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last Prompt": {
+      "main": [
+        [
+          {
+            "node": "Re-Generating Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-Generating Message": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Re-Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Re-Generate": {
+      "main": [
+        [
+          {
+            "node": "Re-Generated Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choose Style": {
+      "main": [
+        []
+      ]
+    },
+    "Extract Style": {
+      "main": [
+        [
+          {
+            "node": "Generating Style Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "append or update raw for style": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generating Style Message": {
+      "main": [
+        [
+          {
+            "node": "append or update raw for style",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "72ebeaf2-e3a3-4f20-8b3d-be5a65b0d7d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9926c479c91c99c11daa04a17a050a70f95b83134876e0c3e6a7b1c038a1cf9d"
+  },
+  "id": "M3UJvzov188rD4Ab",
+  "tags": []
+}

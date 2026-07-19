@@ -6,6 +6,16 @@ Generate stunning AI images directly from Telegram with multiple artistic styles
 
 ---
 
+## 📌 Project Note
+
+This project was built to explore workflow automation with n8n and AI integrations.
+
+The repository contains the implementation and source code used during development. The Telegram Bot is not currently deployed for public use.
+
+Feel free to explore the code and workflow. If you'd like a walkthrough or demo, feel free to connect with me on LinkedIn.
+
+---
+
 ## ✨ Features
 
 - 🖼️ AI Image Generation from Telegram
